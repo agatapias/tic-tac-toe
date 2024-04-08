@@ -6,7 +6,6 @@ networks:
     driver: bridge
 
 services:
- 
 
   tic-tac-backend:
     build:
@@ -19,3 +18,14 @@ services:
       - "8081:8081"
     expose:
       - "8081"
+  
+  tic-tac-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    networks:
+      - tic-tac-backend-network
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000"

@@ -1,97 +1,46 @@
+import * as React from 'react';
 import { useState } from 'react';
-
-function Square({ value, onSquareClick }) {
-  return (
-    <button className="square" onClick={onSquareClick}>
-      {value}
-    </button>
-  );
-}
-
-function Board({ xIsNext, squares, onPlay }) {
-  function handleClick(i) {
-    if (calculateWinner(squares) || squares[i]) {
-      return;
-    }
-    const nextSquares = squares.slice();
-    if (xIsNext) {
-      nextSquares[i] = 'X';
-    } else {
-      nextSquares[i] = 'O';
-    }
-    onPlay(nextSquares);
-  }
-
-  const winner = calculateWinner(squares);
-  let status;
-  if (winner) {
-    status = 'Winner: ' + winner;
-  } else {
-    status = 'Next player: ' + (xIsNext ? 'X' : 'O');
-  }
-
-  return (
-    <>
-      <div className="status">{status}</div>
-      <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-      </div>
-    </>
-  );
-}
+import MatchScreen from './pages/Match';
+import RegisterPlayerScreen from './pages/RegisterPlayer';
+import * as StompJs from '@stomp/stompjs';
+import SockJS from "sockjs-client"
 
 export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
-  const [currentMove, setCurrentMove] = useState(0);
-  const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
+  const [match, setMatch] = useState(null);
+  
+  const [playerName, setPlayerName] = useState("");
+  const [nameSent, setNameSent] = useState(false);
 
-  function handlePlay(nextSquares) {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
-    setHistory(nextHistory);
-    setCurrentMove(nextHistory.length - 1);
+  const socket = new SockJS('http://localhost:8081/stomp/')
+  const ws = StompJs.Stomp.over(socket)
+
+  React.useEffect(() => {
+      if (nameSent) {
+      ws.connect({}, () => {
+          ws.subscribe("/topic/matchStarted/"+playerName, payload => {
+              console.log("Succesfully created match! navigating to match...")
+              console.log("payload: ")
+              let data = JSON.parse(payload.body)
+              console.log(data)
+              setMatch(data)
+          });
+      });
   }
+  }, [nameSent]);
 
-  function jumpTo(nextMove) {
-    setCurrentMove(nextMove);
-  }
-
-  const moves = history.map((squares, move) => {
-    let description;
-    if (move > 0) {
-      description = 'Go to move #' + move;
-    } else {
-      description = 'Go to game start';
-    }
+  if (match == null) {
     return (
-      <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
-      </li>
+      <div className="game">
+        <RegisterPlayerScreen playerName={playerName} setPlayerName={setPlayerName} setNameSent={setNameSent}/>
+      </div>
     );
-  });
-
-  return (
-    <div className="game">
-      <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+  } else {
+    return (
+      <div className="game">
+        <MatchScreen matchData={match} playerName={playerName}/>
       </div>
-      <div className="game-info">
-        <ol>{moves}</ol>
-      </div>
-    </div>
-  );
+    );
+  }
 }
 
 function calculateWinner(squares) {

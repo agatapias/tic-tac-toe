@@ -13,10 +13,8 @@ data class Match(
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Int? = null,
         @OneToOne
-//        @JoinColumn(name = "player_id_1", nullable = false)
         var player1: Player,
         @OneToOne
-//        @JoinColumn(name = "player_id_2", nullable = false)
         var player2: Player,
         var isPlayer1Turn: Boolean = true,
 )
