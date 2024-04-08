@@ -47,9 +47,9 @@ export default function RegisterPlayerScreen({playerName, setPlayerName, setName
     }
   
     return (
-      <div className="register" style={{display: 'flex', justifyContent: 'center', height: '100vh', flexDirection: 'column', backgroundImage: 'linear-gradient(to bottom right, purple, cornflowerBlue)'}}>
+      <div className="register" style={{display: 'flex', alignItems: 'center', height: '100vh', flexDirection: 'column', backgroundImage: 'linear-gradient(to bottom right, purple, cornflowerBlue)'}}>
         <ErrorAlert alert={alert} setAlert={setAlert}/>
-        <div style={{alignItems: 'center', flexDirection: 'column'}}>
+        <div style={{height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
             <div>
                 <TextField 
                     id="outlined-basic" 

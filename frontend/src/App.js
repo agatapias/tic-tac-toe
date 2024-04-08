@@ -4,6 +4,7 @@ import MatchScreen from './pages/Match';
 import RegisterPlayerScreen from './pages/RegisterPlayer';
 import * as StompJs from '@stomp/stompjs';
 import SockJS from "sockjs-client"
+import WaitingScreen from './pages/Waiting';
 
 export default function Game() {
   const [match, setMatch] = useState(null);
@@ -29,11 +30,19 @@ export default function Game() {
   }, [nameSent]);
 
   if (match == null) {
-    return (
-      <div className="game">
-        <RegisterPlayerScreen playerName={playerName} setPlayerName={setPlayerName} setNameSent={setNameSent}/>
-      </div>
-    );
+    if (nameSent) {
+      return (
+        <div className="game">
+          <WaitingScreen />
+        </div>
+      );
+    } else {
+      return (
+        <div className="game">
+          <RegisterPlayerScreen playerName={playerName} setPlayerName={setPlayerName} setNameSent={setNameSent}/>
+        </div>
+      );
+    }
   } else {
     return (
       <div className="game">

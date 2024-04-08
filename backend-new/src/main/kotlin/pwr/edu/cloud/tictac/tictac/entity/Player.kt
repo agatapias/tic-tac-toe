@@ -14,5 +14,6 @@ data class Player(
         var id: Int? = null,
         @Column(unique = true)
         var name: String,
-        var timestamp: Long
+        var timestamp: Long,
+        var isInGame: Boolean = false
 )

@@ -28,8 +28,10 @@ class PlayerService(
 
     fun onPlayerJoin(name: String) {
         if (name.isBlank()) throw NameBlankException()
-        val players: List<Player> = playerRepository.findAll()
+        var players: List<Player> = playerRepository.findAll()
         if (players.any { it.name == name }) throw NameAlreadyExistsException()
+
+        players = players.filter { !it.isInGame }
 
         // create player object
         val player = Player(
@@ -40,12 +42,12 @@ class PlayerService(
         simpMessagingTemplate?.convertAndSend("/topic/matchStartedTest/${player.name}", true)
 
         // add player to queue
-        val savedPlayer = playerRepository.save(player)
+        var savedPlayer = playerRepository.save(player)
 
         if (players.isEmpty()) return
 
         // find another player
-        val player2 = players.firstOrNull()
+        var player2 = players.firstOrNull()
         if (player2 != null) {
             // Create a new match
             val match = Match(
@@ -53,6 +55,12 @@ class PlayerService(
                     player2 = player2
             )
             val savedMatch = matchRepository.save(match)
+
+            // Update players status
+            savedPlayer.isInGame = true
+            playerRepository.save(savedPlayer)
+            player2.isInGame = true
+            playerRepository.save(player2)
 
             // Create new 9 BoardItems and assign to Match
             val board = createBoard(savedMatch)

@@ -4,10 +4,12 @@ import * as StompJs from '@stomp/stompjs';
 import Button from '@mui/material/Button';
 import SockJS from "sockjs-client"
 import ErrorAlert from '../components/Alert';
+import WinAlert from '../components/WinAlert';
 
 export default function MatchScreen({matchData, playerName}) {
     const [match, setMatch] = useState(matchData);
     const [alert, setAlert] = useState("");
+    const [endAlert, setEndAlert] = useState("");
 
     const socket = new SockJS('http://localhost:8081/stomp/')
     const ws = StompJs.Stomp.over(socket)
@@ -16,7 +18,10 @@ export default function MatchScreen({matchData, playerName}) {
         ws.connect({}, () => {
             ws.subscribe("/topic/matchWon/"+playerName, payload => {
                 console.log("Match ended!")
-                console.log("payload: " + JSON.parse(payload.body))
+                console.log("payload: ")
+                let data = JSON.parse(payload.body)
+                console.log(data)
+                setEndAlert(data)
             });
 
             ws.subscribe("/topic/matchChange/"+playerName, payload => {
@@ -24,7 +29,6 @@ export default function MatchScreen({matchData, playerName}) {
                 let data = JSON.parse(payload.body)
                 console.log("payload: ")
                 console.log(data)
-                // TODO: setBoard(newBoard) sorted by position
                 setMatch(data)
             });
         });
@@ -32,7 +36,7 @@ export default function MatchScreen({matchData, playerName}) {
 
     let sendMove = async(position) => {
         try {
-            if (match.board[position - 1] !== null) {
+            if (match.board[position - 1].sign != null) {
                 setAlert("Select an empty field.");
                 return
             }
@@ -75,7 +79,7 @@ export default function MatchScreen({matchData, playerName}) {
     function Square({ value, onSquareClick }) {
         let label
         console.log("value: " + value)
-        if (value == null) label = ""
+        if (value == null) label = " "
         else if (value == true) label = "X"
         else label = "O"
 
@@ -109,12 +113,29 @@ export default function MatchScreen({matchData, playerName}) {
     }
 
     let player = match.isPlayer1Turn ? match.player1 : match.player2
+
+    function EndAlert() {
+        if (endAlert) {
+            return (
+                <WinAlert alert={"You won!"} setAlert={setEndAlert}/>
+            );
+        } else if (endAlert == false) {
+            return (
+                <ErrorAlert alert={"You lost!"} setAlert={setEndAlert}/>
+            );
+        } else {
+            return ({});
+        }
+    }
   
     return (
-      <div className="register" style={{display: 'flex', justifyContent: 'center', height: '100vh', flexDirection: 'column', backgroundImage: 'linear-gradient(to bottom right, purple, cornflowerBlue)'}}>
+      <div className="register" style={{display: 'flex', alignItems: 'center', height: '100vh', flexDirection: 'column', backgroundImage: 'linear-gradient(to bottom right, purple, cornflowerBlue)'}}>
         <ErrorAlert alert={alert} setAlert={setAlert}/>
-        <div style={{alignItems: 'center', flexDirection: 'column', textDecorationColor:'white'}}>
-            Turn: {player}
+        <EndAlert />
+        <div style={{height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', textDecorationColor:'white'}}>
+            <p style={{color:'white'}}>
+                Turn: {player}
+            </p>
             <div style={{height: '2vh'}}></div>
             <Board />
         </div>
