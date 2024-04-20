@@ -3,7 +3,7 @@ import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import ErrorAlert from '../components/Alert';
-import { REACT_APP_IP } from '../constants'
+import { REACT_APP_IP_BACK, REACT_APP_IP_FRONT } from '../constants'
 
 export default function RegisterPlayerScreen({playerName, setPlayerName, setNameSent}) {
     const [alert, setAlert] = useState("");
@@ -16,7 +16,7 @@ export default function RegisterPlayerScreen({playerName, setPlayerName, setName
             }
             setNameSent(true);
             
-            let res = await fetch(`http://${REACT_APP_IP}:8081/player/` + playerName, {
+            let res = await fetch(`http://${REACT_APP_IP_BACK}:8081/player/` + playerName, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -24,7 +24,7 @@ export default function RegisterPlayerScreen({playerName, setPlayerName, setName
                 credentials: 'include',
                 mode: 'cors',
                 referrerPolicy: 'no-referrer',
-                origin: `http://${REACT_APP_IP}:3000/`,
+                origin: `http://${REACT_APP_IP_FRONT}:3000/`,
             });
 
             if (res.status === 200) {

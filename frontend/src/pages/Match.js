@@ -5,14 +5,14 @@ import Button from '@mui/material/Button';
 import SockJS from "sockjs-client"
 import ErrorAlert from '../components/Alert';
 import WinAlert from '../components/WinAlert';
-import { REACT_APP_IP } from '../constants'
+import { REACT_APP_IP_BACK, REACT_APP_IP_FRONT } from '../constants'
 
 export default function MatchScreen({ matchData, playerName }) {
     const [match, setMatch] = useState(matchData);
     const [alert, setAlert] = useState("");
     const [endAlert, setEndAlert] = useState("");
 
-    const socket = new SockJS(`http://${REACT_APP_IP}:8081/stomp/`)
+    const socket = new SockJS(`http://${REACT_APP_IP_BACK}:8081/stomp/`)
     const ws = StompJs.Stomp.over(socket)
 
     React.useEffect(() => {
@@ -49,7 +49,7 @@ export default function MatchScreen({ matchData, playerName }) {
                 return
             }
 
-            let res = await fetch(`http://${REACT_APP_IP}:8081/match/` + match.id + "/" + position, {
+            let res = await fetch(`http://${REACT_APP_IP_BACK}:8081/match/` + match.id + "/" + position, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -57,7 +57,7 @@ export default function MatchScreen({ matchData, playerName }) {
                 credentials: 'include',
                 mode: 'cors',
                 referrerPolicy: 'no-referrer',
-                origin: `http://${REACT_APP_IP}:3000/`,
+                origin: `http://${REACT_APP_IP_FRONT}:3000/`,
             });
 
             if (res.status === 200) {
