@@ -14,7 +14,7 @@ export default function Game() {
   const [playerName, setPlayerName] = useState("");
   const [nameSent, setNameSent] = useState(false);
 
-  const socket = new SockJS('http://localhost:8081/stomp/')
+  const socket = new SockJS(`http://${REACT_APP_IP}:8081/stomp/`)
   const ws = StompJs.Stomp.over(socket)
 
   React.useEffect(() => {
