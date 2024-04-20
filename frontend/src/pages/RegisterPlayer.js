@@ -15,7 +15,7 @@ export default function RegisterPlayerScreen({playerName, setPlayerName, setName
             }
             setNameSent(true);
             
-            let res = await fetch('http://localhost:8081/player/' + playerName, {
+            let res = await fetch(`http://${REACT_APP_IP}:8081/player/` + playerName, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -23,7 +23,7 @@ export default function RegisterPlayerScreen({playerName, setPlayerName, setName
                 credentials: 'include',
                 mode: 'cors',
                 referrerPolicy: 'no-referrer',
-                origin: "http://localhost:3000/",
+                origin: `http://${REACT_APP_IP}:3000/`,
             });
 
             if (res.status === 200) {

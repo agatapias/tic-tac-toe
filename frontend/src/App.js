@@ -6,6 +6,8 @@ import * as StompJs from '@stomp/stompjs';
 import SockJS from "sockjs-client"
 import WaitingScreen from './pages/Waiting';
 
+let IP = "44.202.76.10"  // "localhost" when running locally
+
 export default function Game() {
   const [match, setMatch] = useState(null);
   
