@@ -1,0 +1,2 @@
+const REACT_APP_IP = '44.202.76.10'
+export {REACT_APP_IP}

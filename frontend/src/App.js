@@ -5,6 +5,7 @@ import RegisterPlayerScreen from './pages/RegisterPlayer';
 import * as StompJs from '@stomp/stompjs';
 import SockJS from "sockjs-client"
 import WaitingScreen from './pages/Waiting';
+import { REACT_APP_IP } from './constants'
 
 export default function Game() {
   const [match, setMatch] = useState(null);
@@ -12,7 +13,7 @@ export default function Game() {
   const [playerName, setPlayerName] = useState("");
   const [nameSent, setNameSent] = useState(false);
 
-  const socket = new SockJS(`http://${process.env.REACT_APP_IP}:8081/stomp/`)
+  const socket = new SockJS(`http://${REACT_APP_IP}:8081/stomp/`)
   const ws = StompJs.Stomp.over(socket)
 
   React.useEffect(() => {
