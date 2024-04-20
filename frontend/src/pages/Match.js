@@ -11,7 +11,7 @@ export default function MatchScreen({ matchData, playerName }) {
     const [alert, setAlert] = useState("");
     const [endAlert, setEndAlert] = useState("");
 
-    const socket = new SockJS(`http://${REACT_APP_IP}:8081/stomp/`)
+    const socket = new SockJS(`http://${process.env.REACT_APP_IP}:8081/stomp/`)
     const ws = StompJs.Stomp.over(socket)
 
     React.useEffect(() => {
@@ -48,7 +48,7 @@ export default function MatchScreen({ matchData, playerName }) {
                 return
             }
 
-            let res = await fetch(`http://${REACT_APP_IP}:8081/match/` + match.id + "/" + position, {
+            let res = await fetch(`http://${process.env.REACT_APP_IP}:8081/match/` + match.id + "/" + position, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -56,7 +56,7 @@ export default function MatchScreen({ matchData, playerName }) {
                 credentials: 'include',
                 mode: 'cors',
                 referrerPolicy: 'no-referrer',
-                origin: `http://${REACT_APP_IP}:3000/`,
+                origin: `http://${process.env.REACT_APP_IP}:3000/`,
             });
 
             if (res.status === 200) {

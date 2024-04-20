@@ -6,15 +6,13 @@ import * as StompJs from '@stomp/stompjs';
 import SockJS from "sockjs-client"
 import WaitingScreen from './pages/Waiting';
 
-let IP = "44.202.76.10"  // "localhost" when running locally
-
 export default function Game() {
   const [match, setMatch] = useState(null);
   
   const [playerName, setPlayerName] = useState("");
   const [nameSent, setNameSent] = useState(false);
 
-  const socket = new SockJS(`http://${REACT_APP_IP}:8081/stomp/`)
+  const socket = new SockJS(`http://${process.env.REACT_APP_IP}:8081/stomp/`)
   const ws = StompJs.Stomp.over(socket)
 
   React.useEffect(() => {
