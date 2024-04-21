@@ -73,6 +73,7 @@ class PlayerService(
                     board = board.map { it.toBoardDto() }
             )
 
+            Thread.sleep(2_000)
             // Notify user
             println(savedPlayer.name)
             simpMessagingTemplate?.convertAndSend("/topic/matchStarted/${savedPlayer.name}", dto)
