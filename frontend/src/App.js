@@ -17,7 +17,7 @@ export default function Game() {
   const ws = StompJs.Stomp.over(socket)
 
   React.useEffect(() => {
-      if (nameSent) {
+      // if (nameSent) {
       ws.connect({}, () => {
           ws.subscribe("/topic/matchStarted/"+playerName, payload => {
               console.log("Succesfully created match! navigating to match...")
@@ -27,8 +27,8 @@ export default function Game() {
               setMatch(data)
           });
       });
-  }
-  }, [nameSent]);
+  // }
+  }, []);
 
   if (match == null) {
     if (nameSent) {

@@ -75,6 +75,7 @@ class PlayerService(
 
             // Notify user
             simpMessagingTemplate?.convertAndSend("/topic/matchStarted/${savedPlayer.name}", dto)
+            println(player2.name)
             simpMessagingTemplate?.convertAndSend("/topic/matchStarted/${player2.name}", dto)
         }
     }
