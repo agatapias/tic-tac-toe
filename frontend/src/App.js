@@ -56,7 +56,7 @@ export default function Game() {
             <Route exact path="/" element={getScreen(user, <MainScreen  onLogout={onLogout} setMatch={setMatch}/>)} />
             <Route exact path="/match-history" element={getScreen(user, <MatchHistoryScreen />)} />
             {/* <Route exact path="/waiting" element={getScreen(user, <WaitingScreen user={user} />)} /> */}
-            <Route exact path="/match" element={getScreen(user, <MatchScreen matchData={match} />)} />
+            <Route exact path="/match" element={getScreen(user, <MatchScreen/>)} />
           </Route>
         </Routes>
       </Router>

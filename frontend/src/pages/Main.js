@@ -9,20 +9,19 @@ import * as StompJs from '@stomp/stompjs';
 import SockJS from "sockjs-client"
 import { CircularProgress } from '@mui/material';
 
-const socket = new SockJS(`http://${REACT_APP_IP_BACK}:8081/stomp/`)
-const ws = StompJs.Stomp.over(socket)
-
-let sendPlayerName = async(setIsWaiting, setAlert, onSuccess) => {
+let sendPlayerName = async(setIsWaiting, setAlert) => {
     try {
-        const name = localStorage.getItem('username');
+        const username = localStorage.getItem('username');
+        const name = localStorage.getItem('name');
         const accessToken = localStorage.getItem('accessToken');
-        if (name === "") {
+        console.log(`starting match for: ${username}`)
+        if (username === "") {
             setAlert("Player name cannot be empty.");
             return
         }
         setIsWaiting(true);
         
-        let res = await fetch(`http://${REACT_APP_IP_BACK}:8081/player/` + name, {
+        let res = await fetch(`http://${REACT_APP_IP_BACK}:8081/player/` + username, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -38,8 +37,6 @@ let sendPlayerName = async(setIsWaiting, setAlert, onSuccess) => {
             console.log("register player succeded");
             let player = await res.json();
             console.log(player);
-
-            onSuccess()
         } else if (res.status === 400) {
             console.log("Player name cannot be empty.");
             setAlert("Player name cannot be empty.");
@@ -61,6 +58,9 @@ export default function MainScreen({onLogout, setMatch}) {
     const [isWaiting, setIsWaiting] = useState(false);
     const navigate = useNavigate();
 
+    const socket = new SockJS(`http://${REACT_APP_IP_BACK}:8081/stomp/`)
+    const ws = StompJs.Stomp.over(socket)
+
     React.useEffect(() => {
         if (isWaiting) {
             const token = localStorage.getItem('accessToken');
@@ -73,6 +73,7 @@ export default function MainScreen({onLogout, setMatch}) {
                     let data = JSON.parse(payload.body)
                     console.log(data)
                     setMatch(data)
+                    openMatch(data)
                 });
             });
         }
@@ -83,8 +84,12 @@ export default function MainScreen({onLogout, setMatch}) {
         window.location.reload();
     }
 
-    const openMatch = () => {
-        navigate('/match')
+    const openMatch = (matchData) => {
+        navigate('/match', {
+            state: {
+              matchData: matchData
+            }
+        });
         window.location.reload();
     }
   
@@ -105,12 +110,12 @@ export default function MainScreen({onLogout, setMatch}) {
         <div className="register" style={{display: 'flex', alignItems: 'center', height: '100vh', flexDirection: 'column', backgroundImage: 'linear-gradient(to bottom right, purple, cornflowerBlue)'}}>
             <ErrorAlert alert={alert} setAlert={setAlert}/>
             <div style={{height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
-                <p style={{fontSize: '2em', fontWeight: 'bold'}}>Login</p>
+                <p style={{fontSize: '2em', fontWeight: 'bold'}}>Tic-tac-toe game</p>
                 <div style={{height: '2vh'}}></div>
                 <Button 
                     variant="contained" 
                     onClick={() => {
-                        sendPlayerName(setIsWaiting, setAlert, openMatch);
+                        sendPlayerName(setIsWaiting, setAlert);
                     }}
                 >Play game</Button>
                 <div style={{height: '1.5vh'}}></div>

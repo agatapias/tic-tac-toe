@@ -3,6 +3,7 @@ package pwr.edu.cloud.tictac.tictac.controller
 import pwr.edu.cloud.tictac.tictac.service.PlayerService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -15,9 +16,9 @@ class PlayerController(
 
     @PostMapping("/player/{name}")
     fun registerPlayer(
-            @AuthenticationPrincipal principal: CognitoPrincipal,
             @PathVariable name: String
     ): ResponseEntity<Unit> {
+        val yay = SecurityContextHolder.getContext().authentication.principal
         return ResponseEntity.ok(playerService.onPlayerJoin(name))
     }
 }

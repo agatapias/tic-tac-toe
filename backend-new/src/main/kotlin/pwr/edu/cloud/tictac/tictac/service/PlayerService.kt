@@ -27,11 +27,15 @@ class PlayerService(
     private val simpMessagingTemplate: SimpMessagingTemplate? = null
 
     fun onPlayerJoin(name: String) {
+        println("onPlayerJoin called")
         if (name.isBlank()) throw NameBlankException()
+        println("name: $name")
         var players: List<Player> = playerRepository.findAll()
         if (players.any { it.name == name }) throw NameAlreadyExistsException()
+        println("name new")
 
         players = players.filter { !it.isInGame }
+        println("players filtered")
 
         // create player object
         val player = Player(

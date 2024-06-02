@@ -14,7 +14,6 @@ class MatchController(
 ) {
     @PostMapping("/match/{id}/{position}")
     fun makeMove(
-            @AuthenticationPrincipal principal: CognitoPrincipal,
             @PathVariable id: Int,
             @PathVariable position: Int
     ): ResponseEntity<Unit> {

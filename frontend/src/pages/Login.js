@@ -19,7 +19,7 @@ const login = async (email, password) => {
       }
     };
     
-    console.log(`signUp request body: ${JSON.stringify(requestBody)}`);
+    console.log(`login request body: ${JSON.stringify(requestBody)}`);
   
     const response = await fetch(url, {
       method: 'POST',
@@ -33,20 +33,64 @@ const login = async (email, password) => {
     return response.json();
   };
 
+  function decodeJwt(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+}
+
+  async function fetchUserInfo(accessToken) {
+    const decodedIdToken = decodeJwt(accessToken);
+    console.log(`decoded token: ${decodedIdToken}`);
+    console.log(decodedIdToken);
+
+    const requestBody = {
+        AccessToken: accessToken
+    };
+
+    const response = await fetch(`https://cognito-idp.${awsRegion}.amazonaws.com/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-amz-json-1.1', 
+            'Content-Length': '1162', // Access Token bytes length
+            'X-Amz-Target': 'AWSCognitoIdentityProviderService.GetUser'
+        },
+        body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to fetch user info');
+    }
+
+    const userInfo = await response.json();
+    return userInfo;
+}
+
   const handleLogin = async (email, password, onUserChange, setAlert, setSuccessAlert, onSuccess) => {
     try {
         const result = await login(email, password);
         const accessToken = result.AuthenticationResult.AccessToken;
-
+        
         // Store the access token and email
         localStorage.setItem('accessToken', accessToken);
         localStorage.setItem('username', email);
-        onUserChange(email);
 
         console.log(`Login successful: ${JSON.stringify(result)}`);
         console.log(`Token: ${accessToken}`);
+
+        const userInfo = await fetchUserInfo(accessToken)
+        console.log(`Fetch user info successful: ${JSON.stringify(userInfo)}`);
+
+        const name = userInfo.UserAttributes.find((e) => e.Name === "name").Value
+        console.log(`name: ${name}`);
+        localStorage.setItem('name', name);
+        
         setSuccessAlert(`Login successful`);
-        onSuccess()
+        onUserChange(email);
+        onSuccess();
     } catch (error) {
         console.log(`Login failed: ${error.message}`);
         setAlert(`Login failed`);

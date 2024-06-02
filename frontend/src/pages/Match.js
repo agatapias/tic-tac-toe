@@ -6,14 +6,19 @@ import SockJS from "sockjs-client"
 import ErrorAlert from '../components/Alert';
 import WinAlert from '../components/WinAlert';
 import { REACT_APP_IP_BACK, REACT_APP_IP_FRONT } from '../constants'
+import { useLocation } from 'react-router-dom';
 
-const socket = new SockJS(`http://${REACT_APP_IP_BACK}:8081/stomp/`)
-const ws = StompJs.Stomp.over(socket)
+export default function MatchScreen({}) {
+    const { state } = useLocation();
+    const { matchData } = state;
 
-export default function MatchScreen({matchData}) {
     const [match, setMatch] = useState(matchData);
     const [alert, setAlert] = useState("");
-    const [endAlert, setEndAlert] = useState("");
+    const [won, setWon] = useState(false);
+    const [lost, setLost] = useState(false);
+
+    const socket = new SockJS(`http://${REACT_APP_IP_BACK}:8081/stomp/`)
+    const ws = StompJs.Stomp.over(socket)
 
     React.useEffect(() => {
         const playerName = localStorage.getItem('username');
@@ -24,7 +29,11 @@ export default function MatchScreen({matchData}) {
                 console.log("payload: ")
                 let data = JSON.parse(payload.body)
                 console.log(data)
-                setEndAlert(data)
+                if (data == false) {
+                    setLost(true);
+                } else {
+                    setWon(true);
+                }
             });
 
             ws.subscribe("/topic/matchChange/" + playerName, payload => {
@@ -122,13 +131,13 @@ export default function MatchScreen({matchData}) {
     let player = match.isPlayer1Turn ? match.player1 : match.player2
 
     function EndAlert() {
-        if (endAlert) {
+        if (won) {
             return (
-                <WinAlert alert={"You won!"} setAlert={setEndAlert} />
+                <WinAlert alert={"You won!"} setAlert={setWon} />
             );
-        } else if (endAlert === false) {
+        } else if (lost) {
             return (
-                <ErrorAlert alert={"You lost!"} setAlert={setEndAlert} />
+                <ErrorAlert alert={"You lost!"} setAlert={setLost} />
             );
         } else {
             return ({});
