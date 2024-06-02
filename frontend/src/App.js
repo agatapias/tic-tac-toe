@@ -6,12 +6,40 @@ import * as StompJs from '@stomp/stompjs';
 import SockJS from "sockjs-client"
 import WaitingScreen from './pages/Waiting';
 import { REACT_APP_IP_BACK } from './constants'
+import LoginScreen from './pages/Login';
+import RegisterScreen from './pages/Register';
+import MatchHistoryScreen from './pages/MatchHistory';
+import useLocalStorage, {userKey} from './hooks/LocalStorageHook';
+
+function getLoggedOutScreen(user, screen){
+  if (user !== "")
+    return <Navigate to="/" replace/>;
+  else 
+    return screen;
+}
+
+function getScreen(user, screen){
+  if (user !== "")
+    return screen;
+  else 
+    return <Navigate to="/login" replace/>;
+}
+
 
 export default function Game() {
   const [match, setMatch] = useState(null);
   
   const [playerName, setPlayerName] = useState("");
   const [nameSent, setNameSent] = useState(false);
+
+  const [user, setUser, removeUser] = useLocalStorage(userKey, "");
+  const onUserChange = (usern) => setUser(usern);
+  const onRemoveUser = () => removeUser();
+
+  const onLogout = () => {
+    onRemoveUser();
+    window.location.reload();
+  }
 
   const socket = new SockJS(`http://${REACT_APP_IP_BACK}:8081/stomp/`)
   const ws = StompJs.Stomp.over(socket)
@@ -34,13 +62,28 @@ export default function Game() {
     if (nameSent) {
       return (
         <div className="game">
+           <Router>
+            <Routes>
+              <Route element={<ProtectedRoutes user={user} isHidden={hiddenNavbarRoutes.includes(window.location.pathname)} onLogout={() => onLogout()}/>}>
+                {/*Logged out screens*/}
+                <Route exact path="/login" element={getLoggedOutScreen(user, <LoginScreen  onUserChange={onUserChange} />)} />
+                <Route exact path="/register" element={getLoggedOutScreen(user, <RegisterScreen />)} />
+
+                {/*Logged in screens*/}
+                <Route exact path="/" element={getScreen(user, <MainScreen  user={user} />)} />
+                <Route exact path="/match-history" element={getScreen(user, <MatchHistoryScreen user={user} />)} />
+                <Route exact path="/waiting" element={getScreen(user, <WaitingScreen user={user} />)} />
+                <Route exact path="/match" element={getScreen(user, <MatchScreen user={user} />)} />
+              </Route>
+            </Routes>
+          </Router>
           <WaitingScreen />
         </div>
       );
     } else {
       return (
         <div className="game">
-          <RegisterPlayerScreen playerName={playerName} setPlayerName={setPlayerName} setNameSent={setNameSent}/>
+          <LoginScreen playerName={playerName} setPlayerName={setPlayerName} setNameSent={setNameSent}/>
         </div>
       );
     }

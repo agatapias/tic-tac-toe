@@ -120,7 +120,7 @@ export default function MatchScreen({ matchData, playerName }) {
             return (
                 <WinAlert alert={"You won!"} setAlert={setEndAlert} />
             );
-        } else if (endAlert == false) {
+        } else if (endAlert === false) {
             return (
                 <ErrorAlert alert={"You lost!"} setAlert={setEndAlert} />
             );
