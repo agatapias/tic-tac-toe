@@ -3,6 +3,7 @@ import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import ErrorAlert from '../components/Alert';
+import WinAlert from '../components/WinAlert';
 import { REACT_APP_IP_BACK, REACT_APP_IP_FRONT, awsRegion, clientId } from '../constants'
 import { useNavigate } from "react-router-dom";
 
@@ -57,7 +58,7 @@ const signUp = async (email, name, password) => {
   };
 
 
-  const handleSignUp = async (email, name, password) => {
+  const handleSignUp = async (email, name, password, setAlert, setSuccessAlert) => {
     try {
       const result = await signUp(email, name, password);
       console.log(`Sign up successful: ${JSON.stringify(result)}`);
@@ -68,7 +69,7 @@ const signUp = async (email, name, password) => {
     }
   };
 
-  const handleConfirmSignUp = async (email, code) => {
+  const handleConfirmSignUp = async (email, code, setAlert, setSuccessAlert) => {
     try {
       const result = await confirmSignUp(email, code);
       console.log(`Confirmation successful: ${JSON.stringify(result)}`);
@@ -180,7 +181,7 @@ export default function RegisterScreen({playerName, setPlayerName, setNameSent})
             <Button 
                 variant="contained" 
                 onClick={() => {
-                    handleSignUp(email, name, password);
+                    handleSignUp(email, name, password, setAlert, setSuccessAlert);
                 }}
             >Register</Button>
             <div style={{height: '1.5vh'}}></div>
@@ -194,7 +195,7 @@ export default function RegisterScreen({playerName, setPlayerName, setNameSent})
                 }}
             >Login</Button>
             <div style={{height: '3vh'}}></div>
-            <p style={{fontSize: '2em', fontWeight: 'bold'}}>Enter the code from your email to confirm registration</p>
+            <p style={{fontSize: '1em', fontWeight: 'semi-bold'}}>Enter the code from your email to confirm registration</p>
             <div>
                 <TextField 
                     id="outlined-basic" 
@@ -210,7 +211,7 @@ export default function RegisterScreen({playerName, setPlayerName, setNameSent})
             <Button 
                 variant="contained" 
                 onClick={() => {
-                    handleConfirmSignUp(email, code);
+                    handleConfirmSignUp(email, code, setAlert, setSuccessAlert);
                 }}
             >Send</Button>
         </div>

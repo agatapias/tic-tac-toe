@@ -9,7 +9,9 @@ import { REACT_APP_IP_BACK } from './constants'
 import LoginScreen from './pages/Login';
 import RegisterScreen from './pages/Register';
 import MatchHistoryScreen from './pages/MatchHistory';
+import MainScreen from './pages/Main';
 import useLocalStorage, {userKey} from './hooks/LocalStorageHook';
+import { BrowserRouter as Router, Routes, Route, redirect, Navigate } from 'react-router-dom';
 
 function getLoggedOutScreen(user, screen){
   if (user !== "")
@@ -28,9 +30,6 @@ function getScreen(user, screen){
 
 export default function Game() {
   const [match, setMatch] = useState(null);
-  
-  const [playerName, setPlayerName] = useState("");
-  const [nameSent, setNameSent] = useState(false);
 
   const [user, setUser, removeUser] = useLocalStorage(userKey, "");
   const onUserChange = (usern) => setUser(usern);
@@ -38,62 +37,31 @@ export default function Game() {
 
   const onLogout = () => {
     onRemoveUser();
+    localStorage.setItem('accessToken', "");
+    localStorage.setItem('username', "");
     window.location.reload();
   }
 
-  const socket = new SockJS(`http://${REACT_APP_IP_BACK}:8081/stomp/`)
-  const ws = StompJs.Stomp.over(socket)
+  return (
+    <div className="game">
+        <Router>
+        <Routes>
+          <Route>
+          {/* <Route element={<ProtectedRoutes user={user} isHidden={hiddenNavbarRoutes.includes(window.location.pathname)} onLogout={() => onLogout()}/>}> */}
+            {/*Logged out screens*/}
+            <Route exact path="/login" element={getLoggedOutScreen(user, <LoginScreen  onUserChange={onUserChange} />)} />
+            <Route exact path="/register" element={getLoggedOutScreen(user, <RegisterScreen />)} />
 
-  React.useEffect(() => {
-      if (nameSent) {
-      ws.connect({}, () => {
-          ws.subscribe("/topic/matchStarted/"+playerName, payload => {
-              console.log("Succesfully created match! navigating to match...")
-              console.log("payload: ")
-              let data = JSON.parse(payload.body)
-              console.log(data)
-              setMatch(data)
-          });
-      });
-  }
-  }, [nameSent]);
-
-  if (match == null) {
-    if (nameSent) {
-      return (
-        <div className="game">
-           <Router>
-            <Routes>
-              <Route element={<ProtectedRoutes user={user} isHidden={hiddenNavbarRoutes.includes(window.location.pathname)} onLogout={() => onLogout()}/>}>
-                {/*Logged out screens*/}
-                <Route exact path="/login" element={getLoggedOutScreen(user, <LoginScreen  onUserChange={onUserChange} />)} />
-                <Route exact path="/register" element={getLoggedOutScreen(user, <RegisterScreen />)} />
-
-                {/*Logged in screens*/}
-                <Route exact path="/" element={getScreen(user, <MainScreen  user={user} />)} />
-                <Route exact path="/match-history" element={getScreen(user, <MatchHistoryScreen user={user} />)} />
-                <Route exact path="/waiting" element={getScreen(user, <WaitingScreen user={user} />)} />
-                <Route exact path="/match" element={getScreen(user, <MatchScreen user={user} />)} />
-              </Route>
-            </Routes>
-          </Router>
-          <WaitingScreen />
-        </div>
-      );
-    } else {
-      return (
-        <div className="game">
-          <LoginScreen playerName={playerName} setPlayerName={setPlayerName} setNameSent={setNameSent}/>
-        </div>
-      );
-    }
-  } else {
-    return (
-      <div className="game">
-        <MatchScreen matchData={match} playerName={playerName}/>
-      </div>
-    );
-  }
+            {/*Logged in screens*/}
+            <Route exact path="/" element={getScreen(user, <MainScreen  onLogout={onLogout} setMatch={setMatch}/>)} />
+            <Route exact path="/match-history" element={getScreen(user, <MatchHistoryScreen />)} />
+            {/* <Route exact path="/waiting" element={getScreen(user, <WaitingScreen user={user} />)} /> */}
+            <Route exact path="/match" element={getScreen(user, <MatchScreen matchData={match} />)} />
+          </Route>
+        </Routes>
+      </Router>
+    </div>
+  );
 }
 
 function calculateWinner(squares) {

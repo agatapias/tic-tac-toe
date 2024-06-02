@@ -3,6 +3,7 @@ import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import ErrorAlert from '../components/Alert';
+import WinAlert from '../components/WinAlert';
 import { useNavigate } from "react-router-dom";
 import { REACT_APP_IP_BACK, REACT_APP_IP_FRONT, awsRegion, clientId } from '../constants'
 
@@ -32,76 +33,45 @@ const login = async (email, password) => {
     return response.json();
   };
 
-  const handleLogin = async (email, password) => {
+  const handleLogin = async (email, password, onUserChange, setAlert, setSuccessAlert, onSuccess) => {
     try {
         const result = await login(email, password);
         const accessToken = result.AuthenticationResult.AccessToken;
 
-        // Store the access token
+        // Store the access token and email
         localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('username', email);
+        onUserChange(email);
 
         console.log(`Login successful: ${JSON.stringify(result)}`);
         console.log(`Token: ${accessToken}`);
         setSuccessAlert(`Login successful`);
+        onSuccess()
     } catch (error) {
         console.log(`Login failed: ${error.message}`);
         setAlert(`Login failed`);
     }
   };
 
-export default function LoginScreen({playerName, setPlayerName, setNameSent}) {
+export default function LoginScreen({onUserChange}) {
     const [alert, setAlert] = useState("");
     const [successAlert, setSuccessAlert] = useState("");
     
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    let login = async() => {
-        try {
-            if (playerName === "") {
-                setAlert("Player name cannot be empty.");
-                return
-            }
-            setNameSent(true);
-            
-            let res = await fetch(`http://${REACT_APP_IP_BACK}:8081/player/` + playerName, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                mode: 'cors',
-                referrerPolicy: 'no-referrer',
-                origin: `http://${REACT_APP_IP_FRONT}:3000/`,
-            });
-
-            if (res.status === 200) {
-                console.log("register player succeded");
-                let player = await res.json();
-                console.log(player);
-            } else if (res.status === 400) {
-                console.log("Player name cannot be empty.");
-                setAlert("Player name cannot be empty.");
-            } else if (res.status === 409) {
-                console.log("Player with this name already exists.");
-                setAlert("Player with this name already exists.");
-            } else {
-                console.log("Register player failed.");
-                setAlert("Register player failed.");
-            }
-        } catch (error) {
-            console.log(error);
-            setAlert("Register player failed.");
-        }
-    }
-
     const navigate = useNavigate();
 
     const openRegister = () => {
-        navigate('/sign_up')
+        navigate('/register')
         window.location.reload();
     }
   
+    const openMain = () => {
+        navigate('/')
+        window.location.reload();
+    }
+
     return (
       <div className="register" style={{display: 'flex', alignItems: 'center', height: '100vh', flexDirection: 'column', backgroundImage: 'linear-gradient(to bottom right, purple, cornflowerBlue)'}}>
         <ErrorAlert alert={alert} setAlert={setAlert}/>
@@ -136,7 +106,7 @@ export default function LoginScreen({playerName, setPlayerName, setNameSent}) {
             <Button 
                 variant="contained" 
                 onClick={() => {
-                    handleLogin(email, password);
+                    handleLogin(email, password, onUserChange, setAlert, setSuccessAlert, openMain);
                 }}
             >Login</Button>
             <div style={{height: '1.5vh'}}></div>

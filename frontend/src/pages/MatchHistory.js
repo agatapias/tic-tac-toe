@@ -6,6 +6,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { useNavigate } from "react-router-dom";
+import Button from '@mui/material/Button';
 
 function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
@@ -20,6 +22,13 @@ const rows = [
 ];
 
 export default function MatchHistoryScreen() {
+  const navigate = useNavigate();
+
+  const goBack = () => {
+    navigate(-1)
+    window.location.reload();
+  }
+
   return (
     <div className="register" style={{display: 'flex', alignItems: 'center', height: '100vh', flexDirection: 'column', backgroundImage: 'linear-gradient(to bottom right, purple, cornflowerBlue)'}}>
         <div style={{height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
@@ -53,6 +62,14 @@ export default function MatchHistoryScreen() {
                 </TableBody>
             </Table>
             </TableContainer>
+            <div style={{height: '1.5vh'}}></div>
+            <Button 
+                variant="contained" 
+                color="secondary"
+                onClick={() => {
+                  goBack();
+                }}
+            >Go back</Button>
         </div>
     </div>
   );

@@ -7,16 +7,18 @@ import ErrorAlert from '../components/Alert';
 import WinAlert from '../components/WinAlert';
 import { REACT_APP_IP_BACK, REACT_APP_IP_FRONT } from '../constants'
 
-export default function MatchScreen({ matchData, playerName }) {
+const socket = new SockJS(`http://${REACT_APP_IP_BACK}:8081/stomp/`)
+const ws = StompJs.Stomp.over(socket)
+
+export default function MatchScreen({matchData}) {
     const [match, setMatch] = useState(matchData);
     const [alert, setAlert] = useState("");
     const [endAlert, setEndAlert] = useState("");
 
-    const socket = new SockJS(`http://${REACT_APP_IP_BACK}:8081/stomp/`)
-    const ws = StompJs.Stomp.over(socket)
-
     React.useEffect(() => {
-        ws.connect({}, () => {
+        const playerName = localStorage.getItem('username');
+        const token = localStorage.getItem('accessToken');
+        ws.connect({ Authorization: `Bearer ${token}` }, () => {
             ws.subscribe("/topic/matchWon/" + playerName, payload => {
                 console.log("Match ended!")
                 console.log("payload: ")
@@ -36,6 +38,9 @@ export default function MatchScreen({ matchData, playerName }) {
     }, []);
 
     let sendMove = async (position) => {
+        const playerName = localStorage.getItem('username');
+        const accessToken = localStorage.getItem('accessToken');
+
         try {
             if (match.board[position - 1].sign != null) {
                 setAlert("Select an empty field.");
@@ -52,6 +57,7 @@ export default function MatchScreen({ matchData, playerName }) {
             let res = await fetch(`http://${REACT_APP_IP_BACK}:8081/match/` + match.id + "/" + position, {
                 method: 'POST',
                 headers: {
+                    'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
