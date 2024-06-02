@@ -10,7 +10,11 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import pwr.edu.cloud.tictac.tictac.dto.BoardDto.Companion.toBoardDto
 import pwr.edu.cloud.tictac.tictac.dto.MatchDto
+import pwr.edu.cloud.tictac.tictac.dto.PlayerDto.Companion.toDto
+import pwr.edu.cloud.tictac.tictac.entity.MatchHistory
+import pwr.edu.cloud.tictac.tictac.entity.Player
 import pwr.edu.cloud.tictac.tictac.error.exception.FieldAlreadySelectedException
+import pwr.edu.cloud.tictac.tictac.repository.MatchHistoryRepository
 import pwr.edu.cloud.tictac.tictac.repository.PlayerRepository
 import kotlin.jvm.optionals.getOrNull
 
@@ -30,7 +34,8 @@ private val WIN_LINES = listOf(
 class MatchService(
         private val matchRepository: MatchRepository,
         private val boardRepository: BoardRepository,
-        private val playerRepository: PlayerRepository
+        private val playerRepository: PlayerRepository,
+        private val matchHistoryRepository: MatchHistoryRepository
 ) {
     @Autowired
     private val simpMessagingTemplate: SimpMessagingTemplate? = null
@@ -56,8 +61,8 @@ class MatchService(
 
         val dto = MatchDto(
                 id = match.id,
-                player1 = match.player1.name,
-                player2 = match.player2.name,
+                player1 = match.player1.toDto(),
+                player2 = match.player2.toDto(),
                 isPlayer1Turn = match.isPlayer1Turn,
                 board = boardItems.map { it.toBoardDto() }
         )
@@ -70,15 +75,29 @@ class MatchService(
         for (line in WIN_LINES) {
             val (a, b, c) = line
             if (boardItems[a].sign != null && boardItems[a].sign == boardItems[b].sign && boardItems[a].sign == boardItems[c].sign) {
+                val playerWon: Player
+                val playerLost: Player
                 if (boardItems[a].sign == true) {
                     // Player 1 won
                     simpMessagingTemplate?.convertAndSend("/topic/matchWon/${match.player1.name}", true)
                     simpMessagingTemplate?.convertAndSend("/topic/matchWon/${match.player2.name}", false)
+                    playerWon = match.player1
+                    playerLost = match.player2
                 } else {
                     // Player 2 won
                     simpMessagingTemplate?.convertAndSend("/topic/matchWon/${match.player1.name}", false)
                     simpMessagingTemplate?.convertAndSend("/topic/matchWon/${match.player2.name}", true)
+                    playerWon = match.player2
+                    playerLost = match.player1
                 }
+
+                val newMatchHistory = MatchHistory(
+                        match = match,
+                        playerWon = playerWon,
+                        playerLost = playerLost,
+                        timestamp = System.currentTimeMillis()
+                )
+                matchHistoryRepository.save(newMatchHistory)
 
                 // Delete game
                 boardRepository.deleteAllById(boardItems.map { it.id })

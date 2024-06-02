@@ -6,10 +6,11 @@ import SockJS from "sockjs-client"
 import ErrorAlert from '../components/Alert';
 import WinAlert from '../components/WinAlert';
 import { REACT_APP_IP_BACK, REACT_APP_IP_FRONT } from '../constants'
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function MatchScreen({}) {
     const { state } = useLocation();
+    const navigate = useNavigate();
     const { matchData } = state;
 
     const [match, setMatch] = useState(matchData);
@@ -55,10 +56,10 @@ export default function MatchScreen({}) {
                 setAlert("Select an empty field.");
                 return
             }
-            if (match.isPlayer1Turn && playerName != match.player1) {
+            if (match.isPlayer1Turn && playerName != match.player1.name) {
                 setAlert("It is not your turn.");
                 return
-            } else if (!match.isPlayer1Turn && playerName == match.player1) {
+            } else if (!match.isPlayer1Turn && playerName == match.player1.name) {
                 setAlert("It is not your turn.");
                 return
             }
@@ -128,7 +129,7 @@ export default function MatchScreen({}) {
         );
     }
 
-    let player = match.isPlayer1Turn ? match.player1 : match.player2
+    let player = match.isPlayer1Turn ? match.player1.displayName : match.player2.displayName
 
     function EndAlert() {
         if (won) {
@@ -140,9 +141,14 @@ export default function MatchScreen({}) {
                 <ErrorAlert alert={"You lost!"} setAlert={setLost} />
             );
         } else {
-            return ({});
+            return (null);
         }
     }
+
+    const goBack = () => {
+        navigate(-1);
+      }
+    
 
     return (
         <div className="register" style={{ display: 'flex', alignItems: 'center', height: '100vh', flexDirection: 'column', backgroundImage: 'linear-gradient(to bottom right, purple, cornflowerBlue)' }}>
@@ -154,6 +160,14 @@ export default function MatchScreen({}) {
                 </p>
                 <div style={{ height: '2vh' }}></div>
                 <Board />
+                <div style={{height: '3vh'}}></div>
+                <Button 
+                    variant="contained" 
+                    color="secondary"
+                    onClick={() => {
+                        goBack();
+                    }}
+                >Leave</Button>
             </div>
         </div>
     );

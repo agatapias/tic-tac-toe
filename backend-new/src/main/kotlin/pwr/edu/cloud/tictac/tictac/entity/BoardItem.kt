@@ -13,6 +13,5 @@ data class BoardItem(
         var sign: Boolean? = null,
         @ManyToOne
         @JoinColumn(name = "match_id")
-        @OnDelete(action = OnDeleteAction.CASCADE)
         var match: Match
 )

@@ -6,6 +6,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import pwr.edu.cloud.tictac.tictac.dto.BoardDto.Companion.toBoardDto
 import pwr.edu.cloud.tictac.tictac.dto.MatchDto
+import pwr.edu.cloud.tictac.tictac.dto.PlayerDto
+import pwr.edu.cloud.tictac.tictac.dto.PlayerDto.Companion.toDto
 import pwr.edu.cloud.tictac.tictac.entity.BoardItem
 import pwr.edu.cloud.tictac.tictac.entity.Match
 import pwr.edu.cloud.tictac.tictac.entity.Player
@@ -26,7 +28,7 @@ class PlayerService(
     @Autowired
     private val simpMessagingTemplate: SimpMessagingTemplate? = null
 
-    fun onPlayerJoin(name: String) {
+    fun onPlayerJoin(name: String, displayName: String) {
         println("onPlayerJoin called")
         if (name.isBlank()) throw NameBlankException()
         println("name: $name")
@@ -40,6 +42,7 @@ class PlayerService(
         // create player object
         val player = Player(
                 name = name,
+                displayName = displayName,
                 timestamp = System.currentTimeMillis()
         )
 
@@ -72,8 +75,8 @@ class PlayerService(
             val dto = MatchDto(
                     id = savedMatch.id,
                     isPlayer1Turn = savedMatch.isPlayer1Turn,
-                    player1 = savedPlayer.name,
-                    player2 = player2.name,
+                    player1 = savedPlayer.toDto(),
+                    player2 = player2.toDto(),
                     board = board.map { it.toBoardDto() }
             )
 

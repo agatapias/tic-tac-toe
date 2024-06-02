@@ -14,11 +14,12 @@ class PlayerController(
         private val playerService: PlayerService
 ) {
 
-    @PostMapping("/player/{name}")
+    @PostMapping("/player/{name}/{displayName}")
     fun registerPlayer(
-            @PathVariable name: String
+            @PathVariable name: String,
+            @PathVariable displayName: String,
     ): ResponseEntity<Unit> {
         val yay = SecurityContextHolder.getContext().authentication.principal
-        return ResponseEntity.ok(playerService.onPlayerJoin(name))
+        return ResponseEntity.ok(playerService.onPlayerJoin(name, displayName))
     }
 }

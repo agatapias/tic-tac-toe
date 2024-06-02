@@ -68,7 +68,6 @@ class JWTAuthenticationFilter(
 ) : AbstractPreAuthenticatedProcessingFilter() {
 
     override fun getPreAuthenticatedPrincipal(request: HttpServletRequest): Any? {
-        println("getPreAuthenticatedPrincipal called")
         val token = request.getHeader("Authorization")?.removePrefix("Bearer ")
         return if (token != null) {
             try {
@@ -85,7 +84,6 @@ class JWTAuthenticationFilter(
     override fun getPreAuthenticatedCredentials(request: HttpServletRequest): Any? = null
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-        println("doFilter called")
         val principal = getPreAuthenticatedPrincipal(request as HttpServletRequest)
         if (principal != null) {
             val authentication = org.springframework.security.authentication.UsernamePasswordAuthenticationToken(principal, null, emptyList())

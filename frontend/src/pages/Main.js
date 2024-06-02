@@ -21,7 +21,7 @@ let sendPlayerName = async(setIsWaiting, setAlert) => {
         }
         setIsWaiting(true);
         
-        let res = await fetch(`http://${REACT_APP_IP_BACK}:8081/player/` + username, {
+        let res = await fetch(`http://${REACT_APP_IP_BACK}:8081/player/${username}/${name}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
