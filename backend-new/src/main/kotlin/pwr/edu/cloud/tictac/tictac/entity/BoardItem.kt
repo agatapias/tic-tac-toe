@@ -5,7 +5,7 @@ import jakarta.persistence.*
 @Entity
 data class BoardItem(
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         var id: Int? = null,
         var position: Int, // from 1 to 9
         var sign: Boolean? = null,

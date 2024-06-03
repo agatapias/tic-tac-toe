@@ -9,7 +9,7 @@ import pwr.edu.cloud.tictac.tictac.entity.MatchEntity.Companion.toDto
 @Table(name = "history")
 data class MatchHistory(
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         var id: Int? = null,
         @OneToOne
         var matchEntity: MatchEntity,

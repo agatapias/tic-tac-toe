@@ -12,7 +12,7 @@ import pwr.edu.cloud.tictac.tictac.dto.PlayerDto.Companion.toDto
 @Entity
 data class MatchEntity(
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         var id: Int? = null,
         @OneToOne
         var player1: Player,

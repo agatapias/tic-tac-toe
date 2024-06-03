@@ -9,7 +9,7 @@ import jakarta.persistence.Id
 @Entity
 data class Player(
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
         var id: Int? = null,
         @Column(unique = true)
         var name: String,
