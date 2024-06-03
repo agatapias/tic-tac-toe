@@ -92,7 +92,7 @@ class MatchService(
                 }
 
                 val newMatchHistory = MatchHistory(
-                        match = match,
+                        matchEntity = match,
                         playerWon = playerWon,
                         playerLost = playerLost,
                         timestamp = System.currentTimeMillis()

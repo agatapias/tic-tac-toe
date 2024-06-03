@@ -1,8 +1,6 @@
 package pwr.edu.cloud.tictac.tictac.entity
 
 import jakarta.persistence.*
-import org.hibernate.annotations.OnDelete
-import org.hibernate.annotations.OnDeleteAction
 
 @Entity
 data class BoardItem(
@@ -13,5 +11,5 @@ data class BoardItem(
         var sign: Boolean? = null,
         @ManyToOne
         @JoinColumn(name = "match_id")
-        var match: Match
+        var matchEntity: MatchEntity
 )

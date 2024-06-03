@@ -6,10 +6,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 import pwr.edu.cloud.tictac.tictac.dto.BoardDto.Companion.toBoardDto
 import pwr.edu.cloud.tictac.tictac.dto.MatchDto
-import pwr.edu.cloud.tictac.tictac.dto.PlayerDto
 import pwr.edu.cloud.tictac.tictac.dto.PlayerDto.Companion.toDto
 import pwr.edu.cloud.tictac.tictac.entity.BoardItem
-import pwr.edu.cloud.tictac.tictac.entity.Match
+import pwr.edu.cloud.tictac.tictac.entity.MatchEntity
 import pwr.edu.cloud.tictac.tictac.entity.Player
 import pwr.edu.cloud.tictac.tictac.error.exception.NameAlreadyExistsException
 import pwr.edu.cloud.tictac.tictac.error.exception.NameBlankException
@@ -57,7 +56,7 @@ class PlayerService(
         var player2 = players.firstOrNull()
         if (player2 != null) {
             // Create a new match
-            val match = Match(
+            val match = MatchEntity(
                     player1 = savedPlayer,
                     player2 = player2
             )
@@ -89,12 +88,12 @@ class PlayerService(
         }
     }
 
-    private fun createBoard(match: Match): List<BoardItem> {
+    private fun createBoard(match: MatchEntity): List<BoardItem> {
         val list = mutableListOf<BoardItem>()
         for (i in 1..9) {
             val board = BoardItem(
                     position = i,
-                    match = match
+                    matchEntity = match
             )
             list.add(board)
             boardRepository.save(board)
