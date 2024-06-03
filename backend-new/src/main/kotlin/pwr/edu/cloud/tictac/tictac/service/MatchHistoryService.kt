@@ -19,7 +19,7 @@ class MatchHistoryService(
         val player = playerRepository.findByName(name)?.id ?: return emptyList()
         return matchHistoryRepository.findAllByUser(player).map {
             val matchId = it.matchEntity.id ?: return emptyList()
-            val boardItems = boardRepository.findAllByMatchId(matchId)
+            val boardItems = boardRepository.findAllByMatchEntityId(matchId)
             it.toDto(boardItems)
         }
     }

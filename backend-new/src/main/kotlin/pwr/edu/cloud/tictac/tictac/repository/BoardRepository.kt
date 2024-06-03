@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface BoardRepository : JpaRepository<BoardItem, Int> {
-    fun findAllByMatchId(matchId: Int): List<BoardItem>
-    fun findAllByMatchIdAndPosition(matchId: Int, position: Int): List<BoardItem>
+    fun findAllByMatchEntityId(matchId: Int): List<BoardItem>
+    fun findAllByMatchEntityIdAndPosition(matchId: Int, position: Int): List<BoardItem>
 }

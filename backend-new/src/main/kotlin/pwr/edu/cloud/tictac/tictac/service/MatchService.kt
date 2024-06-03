@@ -43,17 +43,17 @@ class MatchService(
         // Get match for current players
         var match = matchRepository.findById(matchId).getOrNull() ?: throw MatchNotFoundException()
 
-        var boardItems = boardRepository.findAllByMatchId(matchId)
+        var boardItems = boardRepository.findAllByMatchEntityId(matchId)
         if (boardItems.getOrNull(position - 1)?.sign != null) throw FieldAlreadySelectedException()
 
         // Set appropriate board number (+check if possible)
-        val board = boardRepository.findAllByMatchIdAndPosition(matchId, position).firstOrNull()
+        val board = boardRepository.findAllByMatchEntityIdAndPosition(matchId, position).firstOrNull()
                 ?: throw BoardItemNotFoundException()
 
         board.sign = match.isPlayer1Turn
         boardRepository.save(board)
 
-        boardItems = boardRepository.findAllByMatchId(matchId)
+        boardItems = boardRepository.findAllByMatchEntityId(matchId)
 
         // Update match data
         match.isPlayer1Turn = !match.isPlayer1Turn
