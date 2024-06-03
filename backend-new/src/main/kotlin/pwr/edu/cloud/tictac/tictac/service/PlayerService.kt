@@ -10,7 +10,6 @@ import pwr.edu.cloud.tictac.tictac.dto.PlayerDto.Companion.toDto
 import pwr.edu.cloud.tictac.tictac.entity.BoardItem
 import pwr.edu.cloud.tictac.tictac.entity.MatchEntity
 import pwr.edu.cloud.tictac.tictac.entity.Player
-import pwr.edu.cloud.tictac.tictac.error.exception.NameAlreadyExistsException
 import pwr.edu.cloud.tictac.tictac.error.exception.NameBlankException
 import pwr.edu.cloud.tictac.tictac.repository.BoardRepository
 import pwr.edu.cloud.tictac.tictac.repository.MatchRepository
@@ -32,28 +31,29 @@ class PlayerService(
         if (name.isBlank()) throw NameBlankException()
         println("name: $name")
         var players: List<Player> = playerRepository.findAll()
-        if (players.any { it.name == name }) throw NameAlreadyExistsException()
-        println("name new")
+        val currentPlayer = players.firstOrNull{ it.name == name }
+        val newPlayer: Player
+        if (currentPlayer == null) {
+            newPlayer = Player(
+                    name = name,
+                    displayName = displayName,
+                    timestamp = System.currentTimeMillis(),
+                    wantsToPlay = true
+            )
+        } else {
+            newPlayer = currentPlayer.copy(wantsToPlay = true)
+        }
+        val availablePlayers = players.filter { it.wantsToPlay }
 
-        players = players.filter { !it.isInGame }
-        println("players filtered")
-
-        // create player object
-        val player = Player(
-                name = name,
-                displayName = displayName,
-                timestamp = System.currentTimeMillis()
-        )
-
-        simpMessagingTemplate?.convertAndSend("/topic/matchStartedTest/${player.name}", true)
+        simpMessagingTemplate?.convertAndSend("/topic/matchStartedTest/${newPlayer.name}", true)
 
         // add player to queue
-        var savedPlayer = playerRepository.save(player)
+        var savedPlayer = playerRepository.save(newPlayer)
 
-        if (players.isEmpty()) return
+        if (availablePlayers.isEmpty()) return
 
         // find another player
-        var player2 = players.firstOrNull()
+        var player2 = availablePlayers.firstOrNull()
         if (player2 != null) {
             // Create a new match
             val match = MatchEntity(
@@ -61,12 +61,6 @@ class PlayerService(
                     player2 = player2
             )
             val savedMatch = matchRepository.save(match)
-
-            // Update players status
-            savedPlayer.isInGame = true
-            playerRepository.save(savedPlayer)
-            player2.isInGame = true
-            playerRepository.save(player2)
 
             // Create new 9 BoardItems and assign to Match
             val board = createBoard(savedMatch)
@@ -85,6 +79,13 @@ class PlayerService(
             simpMessagingTemplate?.convertAndSend("/topic/matchStarted/${savedPlayer.name}", dto)
             println(player2.name)
             simpMessagingTemplate?.convertAndSend("/topic/matchStarted/${player2.name}", dto)
+
+            // Update players status
+            savedPlayer.wantsToPlay = false
+            playerRepository.save(savedPlayer)
+            player2.wantsToPlay = false
+            playerRepository.save(player2)
+
         }
     }
 

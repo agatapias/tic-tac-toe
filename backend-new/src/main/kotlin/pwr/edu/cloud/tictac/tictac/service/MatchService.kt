@@ -100,10 +100,10 @@ class MatchService(
                 matchHistoryRepository.save(newMatchHistory)
 
                 // Delete game
-                boardRepository.deleteAllById(boardItems.map { it.id })
-                match.id?.let { matchRepository.deleteById(it) }
-                match.player1.id?.let { playerRepository.deleteById(it) }
-                match.player2.id?.let { playerRepository.deleteById(it) }
+//                boardRepository.deleteAllById(boardItems.map { it.id })
+//                match.id?.let { matchRepository.deleteById(it) }
+//                match.player1.id?.let { playerRepository.deleteById(it) }
+//                match.player2.id?.let { playerRepository.deleteById(it) }
 
                 break
             }

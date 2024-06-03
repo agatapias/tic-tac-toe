@@ -20,6 +20,8 @@ class MatchHistoryService(
         return matchHistoryRepository.findAllByUser(player).map {
             val matchId = it.matchEntity.id ?: return emptyList()
             val boardItems = boardRepository.findAllByMatchEntityId(matchId)
+            println("boardItems, size: ${boardItems.size}")
+            println(boardItems)
             it.toDto(boardItems)
         }
     }

@@ -5,7 +5,6 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.UniqueConstraint
 
 @Entity
 data class Player(
@@ -16,5 +15,5 @@ data class Player(
         var name: String,
         var displayName: String,
         var timestamp: Long,
-        var isInGame: Boolean = false
+        var wantsToPlay: Boolean = false
 )
